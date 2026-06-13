@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdsPanel · AQUA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root{--cyan:#00C8FF;--cyan-2:#00A3D4;--blue:#0066FF;--green:#00FF9C;--green-2:#00C97A;--amber:#FFB020;--red:#FF4D4D;--glow-cyan:0 0 12px rgba(0,200,255,.35);--glow-green:0 0 12px rgba(0,255,156,.3);--glow-blue:0 0 12px rgba(0,102,255,.4)}
+[data-theme="dark"]{--bg:#060D14;--bg-2:#0A1628;--surface:#0D1A2E;--border:rgba(0,200,255,.12);--border-2:rgba(0,200,255,.06);--text:#E8F4FF;--text-2:#7BA8CC;--text-3:#3D6080;--accent:var(--cyan);--accent-bg:rgba(0,200,255,.08)}
+[data-theme="light"]{--bg:#EEF6FF;--bg-2:#F7FBFF;--surface:#FFFFFF;--border:rgba(0,102,204,.14);--border-2:rgba(0,102,204,.06);--text:#081828;--text-2:#3A6080;--text-3:#8AAAC4;--accent:#0057D9;--accent-bg:rgba(0,87,217,.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.55;min-height:100vh;transition:background .25s,color .25s}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:var(--bg-2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:20px}
+.login-bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.2}
+.orb:nth-child(1){width:400px;height:400px;background:var(--cyan);top:-80px;left:-80px}
+.orb:nth-child(2){width:350px;height:350px;background:var(--blue);bottom:-60px;right:-60px}
+.orb:nth-child(3){width:250px;height:250px;background:var(--green);top:40%;left:45%}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:100%;max-width:440px;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+[data-theme="light"] .login-card{box-shadow:0 8px 40px rgba(0,102,204,.12)}
+.login-wordmark{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.login-icon{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-cyan)}
+.login-icon i{color:#fff;font-size:19px}
+.login-name{font-size:21px;font-weight:700;letter-spacing:-.04em}
+.login-name span{color:var(--cyan)}
+.login-tagline{font-size:10px;color:var(--text-3);margin-top:2px;letter-spacing:.05em;text-transform:uppercase}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:6px}
+.fi{width:100%;padding:10px 13px;background:var(--bg-2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .15s,box-shadow .15s}
+.fi:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,200,255,.1)}
+.fi.text-font{font-family:'Inter',sans-serif}
+.fh{font-size:11px;color:var(--text-3);margin-top:5px;line-height:1.6}
+.fh a{color:var(--accent);text-decoration:none}
+.fh code{background:var(--bg-2);padding:1px 5px;border-radius:4px;font-size:10px}
+.lerr{margin-top:10px;padding:10px 13px;background:rgba(255,77,77,.1);border:1px solid rgba(255,77,77,.3);border-radius:8px;font-size:12px;color:var(--red);display:none}
+.lactions{display:flex;gap:8px;margin-top:18px}
+.lbtn{flex:1;padding:11px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s;font-family:'Inter',sans-serif;box-shadow:var(--glow-blue)}
+.lbtn:hover{opacity:.88}
+.lbtn:disabled{opacity:.35;cursor:not-allowed}
+.lbtn-diag{padding:11px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg-2);color:var(--text-2);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color .15s;font-family:'Inter',sans-serif}
+.lbtn-diag:hover{border-color:var(--cyan);color:var(--cyan)}
+.diag-out{margin-top:12px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);white-space:pre-wrap;display:none;max-height:240px;overflow-y:auto;line-height:1.8}
+.lsec{margin-top:12px;text-align:center;font-size:10px;color:var(--text-3);display:flex;align-items:center;justify-content:center;gap:5px;text-transform:uppercase;letter-spacing:.05em}
+
+/* APP */
+#app{display:none;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:216px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:10;transition:background .25s}
+.sh{padding:18px 14px 14px;border-bottom:1px solid var(--border-2)}
+.logo-row{display:flex;align-items:center;gap:9px}
+.logo-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-cyan);flex-shrink:0}
+.logo-mark i{color:#fff;font-size:13px}
+.logo-n{font-size:13px;font-weight:700;letter-spacing:-.03em}
+.logo-n span{color:var(--cyan)}
+.logo-u{font-size:10px;color:var(--text-3);margin-top:7px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav{padding:8px 6px;flex:1;overflow-y:auto}
+.ng{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);padding:10px 8px 3px}
+.nb-btn{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;font-size:12px;color:var(--text-2);cursor:pointer;transition:all .12s;border:none;background:none;width:100%;text-align:left;font-family:'Inter',sans-serif}
+.nb-btn:hover{background:var(--accent-bg);color:var(--text)}
+.nb-btn.active{background:var(--accent-bg);color:var(--cyan);border-left:2px solid var(--cyan)}
+[data-theme="light"] .nb-btn.active{color:var(--accent);border-left-color:var(--accent)}
+.nb-btn i{font-size:14px;flex-shrink:0}
+.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:700}
+.sf{padding:12px 14px;border-top:1px solid var(--border-2)}
+.sync-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pa 2s infinite}
+.pulse.loading{background:var(--amber);animation:blink 1s infinite}
+.pulse.error{background:var(--red);animation:none}
+@keyframes pa{0%,100%{box-shadow:0 0 0 0 rgba(0,255,156,.4)}50%{box-shadow:0 0 0 5px rgba(0,255,156,0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* MAIN */
+.main{margin-left:216px;flex:1;min-width:0}
+.section{display:none;padding:18px 22px}
+.section.active{display:block}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:9;background:var(--bg);border-bottom:1px solid var(--border-2);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;backdrop-filter:blur(12px)}
+.pt{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.ps{font-size:11px;color:var(--text-3);margin-top:1px}
+.tr{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+
+/* RBAR */
+.rbar{height:2px;background:var(--border-2);position:fixed;top:0;left:216px;right:0;z-index:100}
+.rfill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue));transition:width 1s linear}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:12px;cursor:pointer;white-space:nowrap;transition:all .12s;font-family:'Inter',sans-serif;font-weight:500}
+.btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn i{font-size:13px}
+.btn-sm{padding:4px 9px;font-size:11px}
+.btn-ai{background:linear-gradient(135deg,rgba(91,63,212,.18),rgba(0,102,255,.18));border-color:rgba(91,63,212,.35);color:#A78BFA}
+.btn-ai:hover{border-color:#A78BFA;color:#C4B5FD;box-shadow:0 0 10px rgba(91,63,212,.25)}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--blue));border-color:transparent;color:#fff;box-shadow:var(--glow-blue)}
+.btn-primary:hover{opacity:.9;color:#fff}
+.theme-tog{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:all .12s}
+.theme-tog:hover{border-color:var(--cyan);color:var(--cyan)}
+select.btn{cursor:pointer}
+
+/* METRICS */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:18px}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 13px;transition:border-color .2s,box-shadow .2s}
+.mc:hover{border-color:var(--cyan);box-shadow:var(--glow-cyan)}
+.me{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:8px}
+.mv{font-size:20px;font-weight:700;letter-spacing:-.04em;font-family:'JetBrains Mono',monospace}
+.ms{font-size:10px;color:var(--text-3);margin-top:4px}
+.mbadge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:4px}
+.mb-ok{background:rgba(0,255,156,.12);color:var(--green-2)}
+.mb-warn{background:rgba(255,176,32,.12);color:var(--amber)}
+.mb-bad{background:rgba(255,77,77,.12);color:var(--red)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.card:hover{border-color:rgba(0,200,255,.2)}
+.ct{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ct i{font-size:13px;color:var(--cyan)}
+[data-theme="light"] .ct i{color:var(--accent)}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--text-2);margin-bottom:8px}
+.ld{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+
+/* CAMPAIGN CARDS */
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.cc:hover{border-color:rgba(0,200,255,.35);box-shadow:var(--glow-cyan)}
+.cc.ac{border-color:rgba(0,255,156,.2)}
+.cc.ac:hover{border-color:var(--green);box-shadow:var(--glow-green)}
+.cc.pc{opacity:.75}
+.cch{padding:12px 14px 8px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.ccn{font-size:12px;font-weight:600;line-height:1.3;flex:1}
+.cca{font-size:10px;color:var(--text-3);margin-top:2px}
+.spl{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.sp-a{background:rgba(0,255,156,.1);color:var(--green-2);border:1px solid rgba(0,255,156,.2)}
+.sp-p{background:rgba(255,176,32,.1);color:var(--amber);border:1px solid rgba(255,176,32,.2)}
+.sp-x{background:rgba(255,255,255,.04);color:var(--text-3);border:1px solid var(--border)}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.sp-a .sdot{animation:pa 2s infinite}
+.chart-area{padding:0 14px 8px;height:55px;position:relative}
+.cm{display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 14px;border-top:1px solid var(--border-2)}
+.cmi{text-align:center;padding:5px 0}
+.cmi:not(:last-child){border-right:1px solid var(--border-2)}
+.cmil{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:2px}
+.cmiv{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em}
+.ca{display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border-2)}
+.cab{flex:1;padding:6px 0;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .12s;font-family:'Inter',sans-serif}
+.cab:hover{border-color:var(--cyan);color:var(--cyan)}
+.cab.pause:hover{border-color:var(--amber);color:var(--amber)}
+.cab.activate:hover{border-color:var(--green);color:var(--green)}
+.cab i{font-size:12px}
+
+/* FILTERS */
+.fb{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.fb input,.fb select{padding:6px 11px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);font-size:12px;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
+.fb input:focus,.fb select:focus{border-color:var(--cyan)}
+.fc{font-size:11px;color:var(--text-3);margin-left:auto}
+
+/* TABLE */
+.tw{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+thead th{padding:9px 13px;text-align:left;font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;background:var(--bg-2);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:10px 13px;border-bottom:1px solid var(--border-2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--accent-bg)}
+.tm{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-3)}
+.tsub{font-size:10px;color:var(--text-3);margin-top:2px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
+.badge-active{background:rgba(0,255,156,.1);color:var(--green-2);border:1px solid rgba(0,255,156,.2)}
+.badge-paused{background:rgba(255,176,32,.1);color:var(--amber);border:1px solid rgba(255,176,32,.2)}
+.badge-archived,.badge-disabled{background:rgba(255,255,255,.04);color:var(--text-3);border:1px solid var(--border)}
+
+/* ALERTS */
+.al{border-radius:9px;padding:11px 14px;margin-bottom:9px;display:flex;gap:10px;align-items:flex-start}
+.al.danger{background:rgba(255,77,77,.08);border:1px solid rgba(255,77,77,.2)}
+.al.warn{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.2)}
+.al i{font-size:16px;flex-shrink:0;margin-top:1px}
+.al.danger i{color:var(--red)}
+.al.warn i{color:var(--amber)}
+.alt{font-size:12px;font-weight:600}
+.alb{font-size:11px;color:var(--text-2);margin-top:2px}
+
+/* EMPTY */
+.empty{text-align:center;padding:44px 20px;color:var(--text-3)}
+.empty i{font-size:34px;display:block;margin-bottom:10px;opacity:.3}
+.empty-t{font-size:13px;color:var(--text-2);font-weight:500;margin-bottom:4px}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mo.open{display:flex}
+.md{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:400px;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+.mdt{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.mdt i{color:var(--cyan)}
+.mdi{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:14px;outline:none;font-family:'JetBrains Mono',monospace;transition:border-color .15s}
+.mdi:focus{border-color:var(--cyan)}
+.mdh{font-size:11px;color:var(--text-3);margin-top:5px}
+.mda{display:flex;gap:8px;margin-top:18px}
+
+/* AI PANEL */
+.aip{position:fixed;right:0;top:0;bottom:0;width:380px;background:var(--surface);border-left:1px solid rgba(91,63,212,.3);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-10px 0 36px rgba(91,63,212,.15)}
+.aip.open{transform:translateX(0)}
+.aih{padding:14px 16px;border-bottom:1px solid rgba(91,63,212,.2);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(91,63,212,.1),rgba(0,102,255,.08))}
+.aiht{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#A78BFA}
+.aiht i{font-size:16px}
+.aic{background:none;border:none;cursor:pointer;color:var(--text-3);font-size:17px;display:flex;align-items:center}
+.aic:hover{color:var(--text)}
+.aim{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.aimsg{display:flex;flex-direction:column;gap:3px}
+.aimr{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3)}
+.aimsg.assistant .aimr{color:#A78BFA}
+.aib{padding:10px 13px;border-radius:9px;font-size:12px;line-height:1.65;white-space:pre-wrap}
+.aimsg.user .aib{background:var(--bg-2);border:1px solid var(--border);border-radius:9px 9px 2px 9px}
+.aimsg.assistant .aib{background:rgba(91,63,212,.1);border:1px solid rgba(91,63,212,.2);border-radius:9px 9px 9px 2px}
+.ait{padding:10px 13px;background:rgba(91,63,212,.1);border:1px solid rgba(91,63,212,.2);border-radius:9px 9px 9px 2px;display:none}
+.dots{display:flex;gap:4px}
+.dots span{width:5px;height:5px;border-radius:50%;background:#A78BFA;animation:bounce .9s infinite}
+.dots span:nth-child(2){animation-delay:.15s}
+.dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+.aiq{padding:9px 14px;border-top:1px solid var(--border-2);display:flex;flex-wrap:wrap;gap:5px}
+.aiqb{padding:4px 9px;border-radius:20px;border:1px solid rgba(91,63,212,.3);background:rgba(91,63,212,.08);color:#A78BFA;font-size:10px;font-weight:500;cursor:pointer;transition:all .12s;font-family:'Inter',sans-serif}
+.aiqb:hover{background:#5B3FD4;color:#fff;border-color:#5B3FD4}
+.aiir{padding:10px 14px;border-top:1px solid rgba(91,63,212,.2);display:flex;gap:7px;align-items:flex-end;background:linear-gradient(135deg,rgba(91,63,212,.06),rgba(0,102,255,.04))}
+.aita{flex:1;padding:8px 11px;border-radius:7px;border:1px solid rgba(91,63,212,.3);background:var(--bg-2);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;resize:none;outline:none;min-height:36px;max-height:90px;line-height:1.5}
+.aita:focus{border-color:#A78BFA}
+.aisb{width:34px;height:34px;border-radius:7px;background:linear-gradient(135deg,#5B3FD4,var(--blue));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;flex-shrink:0}
+.aisb:hover{opacity:.85}
+.aisb:disabled{opacity:.3;cursor:not-allowed}
+.aisb i{color:#fff;font-size:14px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:30px;font-size:12px;z-index:9999;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.skel{background:var(--bg-2);border-radius:6px;animation:shimmer 1.3s ease-in-out infinite}
+@keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.9}}
+@media(max-width:768px){
+  .sidebar{width:48px}
+  .logo-n,.logo-u,.ng,.nb-btn span,.sf .sync-row span{display:none}
+  .main{margin-left:48px}
+  .rbar{left:48px}
+  .g2,.g3{grid-template-columns:1fr}
+  .aip{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-bg"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+  <div class="login-card">
+    <div class="login-wordmark">
+      <div class="login-icon"><i class="ti ti-chart-dots-2"></i></div>
+      <div><div class="login-name">Ads<span>Panel</span></div><div class="login-tagline">AQUA · Meta Ads Intelligence</div></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Token de acesso Meta</label>
+      <input id="ti" class="fi" type="password" placeholder="EAAOUb2RKbYMBO..." autocomplete="off" spellcheck="false"/>
+      <div class="fh">Token de <strong>System User</strong> (não expira) com <code>ads_read</code> · <code>business_management</code>.</div>
+    </div>
+    <div class="fg">
+      <label class="fl">IDs dos Business Managers</label>
+      <input id="bi" class="fi text-font" type="text" placeholder="892161320427061, 123456789, ..."/>
+      <div class="fh">IDs separados por vírgula — Business Manager → Configurações → Informações do negócio.</div>
+    </div>
+    <div id="lerr" class="lerr"></div>
+    <div class="lactions">
+      <button class="lbtn" id="lbtn" onclick="doLogin()"><i class="ti ti-plug-connected"></i><span id="lbtxt">Conectar</span></button>
+      <button class="lbtn-diag" onclick="doDiag()"><i class="ti ti-stethoscope"></i> Diagnóstico</button>
+    </div>
+    <div id="diag-out" class="diag-out"></div>
+    <div class="lsec"><i class="ti ti-lock" style="font-size:11px"></i> Token não é salvo — apenas nesta aba</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="rbar"><div class="rfill" id="rfill" style="width:100%"></div></div>
+  <aside class="sidebar">
+    <div class="sh">
+      <div class="logo-row">
+        <div class="logo-mark"><i class="ti ti-chart-dots-2"></i></div>
+        <div class="logo-n">Ads<span>Panel</span></div>
+      </div>
+      <div class="logo-u" id="su">—</div>
+    </div>
+    <nav>
+      <div class="ng">Painel</div>
+      <button class="nb-btn active" onclick="goTo('overview',this)"><i class="ti ti-layout-dashboard"></i><span>Visão Geral</span></button>
+      <div class="ng">Hierarquia</div>
+      <button class="nb-btn" onclick="goTo('bm',this)"><i class="ti ti-building"></i><span>Business Managers</span></button>
+      <button class="nb-btn" onclick="goTo('whatsapp',this)"><i class="ti ti-brand-whatsapp"></i><span>WhatsApp</span></button>
+      <button class="nb-btn" onclick="goTo('accounts',this)"><i class="ti ti-credit-card"></i><span>Contas de anúncio</span></button>
+      <button class="nb-btn" onclick="goTo('campaigns',this)"><i class="ti ti-speakerphone"></i><span>Campanhas</span></button>
+      <div class="ng">Criar</div>
+      <button class="nb-btn" onclick="goTo('criar',this)" style="color:var(--green-2)"><i class="ti ti-rocket"></i><span>Nova Campanha</span></button>
+      <div class="ng">Sistema</div>
+      <button class="nb-btn" onclick="goTo('alerts',this)"><i class="ti ti-bell"></i><span>Alertas</span><span class="nbadge" id="abadge" style="display:none">0</span></button>
+      <button class="nb-btn" onclick="doLogout()" style="color:var(--red)"><i class="ti ti-logout"></i><span>Sair</span></button>
+    </nav>
+    <div class="sf"><div class="sync-row"><div class="pulse" id="pulse"></div><span id="sl">—</span></div></div>
+  </aside>
+
+  <div class="main">
+
+    <!-- OVERVIEW -->
+    <div id="sec-overview" class="section active">
+      <div class="topbar">
+        <div><div class="pt">Visão Geral</div><div class="ps" id="os">Carregando…</div></div>
+        <div class="tr">
+          <select class="btn" id="dr" onchange="reloadData()"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option></select>
+          <button class="btn" onclick="reloadData()"><i class="ti ti-refresh"></i> Atualizar</button>
+          <button class="btn btn-ai" onclick="analyzeAll()"><i class="ti ti-sparkles"></i> Analisar com IA</button>
+          <button class="theme-tog" onclick="toggleTheme()"><i class="ti ti-sun" id="ti0"></i></button>
+        </div>
+      </div>
+      <div class="mg" id="om">
+        <div class="mc"><div class="skel" style="height:9px;width:55px;margin-bottom:10px"></div><div class="skel" style="height:24px;width:100px;margin-bottom:5px"></div><div class="skel" style="height:9px;width:70px"></div></div>
+        <div class="mc"><div class="skel" style="height:9px;width:55px;margin-bottom:10px"></div><div class="skel" style="height:24px;width:100px;margin-bottom:5px"></div><div class="skel" style="height:9px;width:70px"></div></div>
+        <div class="mc"><div class="skel" style="height:9px;width:55px;margin-bottom:10px"></div><div class="skel" style="height:24px;width:100px;margin-bottom:5px"></div><div class="skel" style="height:9px;width:70px"></div></div>
+        <div class="mc"><div class="skel" style="height:9px;width:55px;margin-bottom:10px"></div><div class="skel" style="height:24px;width:100px;margin-bottom:5px"></div><div class="skel" style="height:9px;width:70px"></div></div>
+        <div class="mc"><div class="skel" style="height:9px;width:55px;margin-bottom:10px"></div><div class="skel" style="height:24px;width:100px;margin-bottom:5px"></div><div class="skel" style="height:9px;width:70px"></div></div>
+        <div class="mc"><div class="skel" style="height:9px;width:55px;margin-bottom:10px"></div><div class="skel" style="height:24px;width:100px;margin-bottom:5px"></div><div class="skel" style="height:9px;width:70px"></div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ct"><i class="ti ti-chart-line"></i> Gasto diário</div><div class="legend"><span><span class="ld" style="background:var(--cyan)"></span>Gasto</span></div><div style="position:relative;height:170px"><canvas id="cS"></canvas></div></div>
+        <div class="card"><div class="ct"><i class="ti ti-chart-donut"></i> Por conta</div><div class="legend" id="pl"></div><div style="position:relative;height:155px"><canvas id="cP"></canvas></div></div>
+      </div>
+      <div class="g3">
+        <div class="card"><div class="ct"><i class="ti ti-chart-bar"></i> CPM por conta</div><div style="position:relative;height:135px"><canvas id="cC"></canvas></div></div>
+        <div class="card"><div class="ct"><i class="ti ti-chart-donut-3"></i> Status campanhas</div><div class="legend" id="stl"></div><div style="position:relative;height:95px"><canvas id="cSt"></canvas></div></div>
+        <div class="card"><div class="ct"><i class="ti ti-brand-whatsapp"></i> WhatsApp</div><div id="watl" style="font-size:12px;color:var(--text-3)">Carregando…</div></div>
+      </div>
+    </div>
+
+    <!-- BMs -->
+    <div id="sec-bm" class="section">
+      <div class="topbar"><div><div class="pt">Business Managers</div><div class="ps" id="bms">—</div></div><div class="tr"><button class="btn btn-ai btn-sm" onclick="analyzeBMs()"><i class="ti ti-sparkles"></i> Analisar</button><button class="theme-tog" onclick="toggleTheme()"><i class="ti ti-sun" id="ti1"></i></button></div></div>
+      <div class="fb"><input type="text" id="bq" placeholder="🔍  Buscar BM…" style="width:210px" oninput="renderBM()"><span class="fc" id="bmc"></span></div>
+      <div class="tw"><table><thead><tr><th>Business Manager</th><th>ID</th><th>Contas</th><th>Camp. ativas</th><th>Gasto</th><th>Impressões</th><th>CPM médio</th></tr></thead><tbody id="bmt"></tbody></table></div>
+    </div>
+
+    <!-- WHATSAPP -->
+    <div id="sec-whatsapp" class="section">
+      <div class="topbar"><div><div class="pt">Números WhatsApp</div><div class="ps" id="was">—</div></div><div class="tr"><button class="theme-tog" onclick="toggleTheme()"><i class="ti ti-sun" id="ti2"></i></button></div></div>
+      <div class="fb"><input type="text" id="wq" placeholder="🔍  Buscar…" style="width:210px" oninput="renderWA()"><select id="wbm" onchange="renderWA()"><option value="">Todos os BMs</option></select><span class="fc" id="wac"></span></div>
+      <div class="tw"><table><thead><tr><th>Número</th><th>Nome exibido</th><th>BM</th><th>Qualidade</th><th>Status</th></tr></thead><tbody id="wat"></tbody></table></div>
+    </div>
+
+    <!-- CONTAS -->
+    <div id="sec-accounts" class="section">
+      <div class="topbar"><div><div class="pt">Contas de Anúncio</div><div class="ps" id="accs">—</div></div><div class="tr"><button class="btn btn-ai btn-sm" onclick="analyzeAccounts()"><i class="ti ti-sparkles"></i> Analisar</button><button class="theme-tog" onclick="toggleTheme()"><i class="ti ti-sun" id="ti3"></i></button></div></div>
+      <div class="fb"><input type="text" id="aq" placeholder="🔍  Buscar…" style="width:210px" oninput="renderAcc()"><select id="abm" onchange="renderAcc()"><option value="">Todos os BMs</option></select><span class="fc" id="acc"></span></div>
+      <div class="tw"><table><thead><tr><th>Conta</th><th>ID</th><th>BM</th><th>Gasto</th><th>CPM</th><th>CTR</th><th>Conversas</th><th>Status</th></tr></thead><tbody id="act"></tbody></table></div>
+    </div>
+
+    <!-- CAMPANHAS -->
+    <div id="sec-campaigns" class="section">
+      <div class="topbar"><div><div class="pt">Campanhas</div><div class="ps" id="cs">—</div></div><div class="tr"><button class="btn btn-ai btn-sm" onclick="analyzeCampaigns()"><i class="ti ti-sparkles"></i> Analisar com IA</button><button class="theme-tog" onclick="toggleTheme()"><i class="ti ti-sun" id="ti4"></i></button></div></div>
+      <div class="fb">
+        <input type="text" id="cq" placeholder="🔍  Buscar campanha…" style="width:210px" oninput="renderCamp()">
+        <select id="cst" onchange="renderCamp()"><option value="">Todos</option><option value="ACTIVE">Ativas</option><option value="PAUSED">Pausadas</option><option value="ARCHIVED">Arquivadas</option></select>
+        <select id="cbm" onchange="renderCamp()"><option value="">Todos os BMs</option></select>
+        <select id="cac" onchange="renderCamp()"><option value="">Todas as contas</option></select>
+        <span class="fc" id="cc"></span>
+      </div>
+      <div class="cg" id="cgrid"></div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div id="sec-alerts" class="section">
+      <div class="topbar"><div><div class="pt">Alertas</div><div class="ps" id="als">—</div></div><div class="tr"><button class="btn btn-ai btn-sm" onclick="analyzeAlerts()"><i class="ti ti-sparkles"></i> Explicar com IA</button><button class="theme-tog" onclick="toggleTheme()"><i class="ti ti-sun" id="ti5"></i></button></div></div>
+      <div id="allist"></div>
+      <div class="card" style="margin-top:12px"><div class="ct"><i class="ti ti-adjustments"></i> Regras</div><div id="alrules" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px"></div></div>
+    </div>
+
+  </div>
+
+    <!-- CRIAR CAMPANHA -->
+    <div id="sec-criar" class="section">
+      <div class="topbar">
+        <div><div class="pt">Nova Campanha</div><div class="ps">Crie campanha + ad set via Graph API</div></div>
+        <div class="tr"><button class="theme-tog" onclick="toggleTheme()"><i class="ti ti-sun" id="ti6"></i></button></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button id="ctab-new" class="btn btn-primary btn-sm" onclick="switchCTab('new')" style="flex:1;justify-content:center"><i class="ti ti-plus"></i> Campanha + Ad Set</button>
+        <button id="ctab-adset" class="btn btn-sm" onclick="switchCTab('adset')" style="flex:1;justify-content:center"><i class="ti ti-layers-subtract"></i> Ad Set em campanha existente</button>
+      </div>
+
+      <!-- PAINEL: CAMPANHA + AD SET -->
+      <div id="cpanel-new">
+        <div class="card" style="margin-bottom:12px">
+          <div class="ct"><i class="ti ti-speakerphone"></i> Campanha</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Conta de anúncio (act_id)</label>
+              <input class="fi text-font" id="cr-account" placeholder="167922944923039"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Objetivo</label>
+              <select class="fi text-font" id="cr-objective">
+                <option value="OUTCOME_ENGAGEMENT">Engajamento</option>
+                <option value="OUTCOME_SALES">Vendas</option>
+                <option value="OUTCOME_TRAFFIC">Tráfego</option>
+                <option value="OUTCOME_LEADS">Geração de leads</option>
+                <option value="OUTCOME_AWARENESS">Reconhecimento</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">Nome da campanha</label>
+            <input class="fi text-font" id="cr-name" placeholder="[ENG] | [ADV+] | [25+] | [Presidente Prudente]"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Categoria especial</label>
+            <select class="fi text-font" id="cr-special">
+              <option value="">Nenhuma</option>
+              <option value="CREDIT">Crédito</option>
+              <option value="EMPLOYMENT">Emprego</option>
+              <option value="HOUSING">Moradia</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:12px">
+          <div class="ct"><i class="ti ti-layers-subtract"></i> Ad Set</div>
+          <div class="fg">
+            <label class="fl">Nome do ad set</label>
+            <input class="fi text-font" id="cr-asname" placeholder="[ADV+] | [25+] | [Presidente Prudente] | [FEED/REELS]"/>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Objetivo de otimização</label>
+              <select class="fi text-font" id="cr-goal">
+                <option value="PROFILE_AND_PAGE_ENGAGEMENT">Engajamento de perfil/página</option>
+                <option value="LINK_CLICKS">Cliques no link</option>
+                <option value="REACH">Alcance</option>
+                <option value="IMPRESSIONS">Impressões</option>
+                <option value="OFFSITE_CONVERSIONS">Conversões</option>
+                <option value="LEAD_GENERATION">Geração de leads</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="fl">Destination type</label>
+              <select class="fi text-font" id="cr-dest">
+                <option value="INSTAGRAM_PROFILE_AND_FACEBOOK_PAGE">Instagram + Facebook</option>
+                <option value="INSTAGRAM_PROFILE">Instagram</option>
+                <option value="FACEBOOK_PAGE">Facebook</option>
+                <option value="">— Nenhum —</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Orçamento diário (R$)</label>
+              <input class="fi" type="number" id="cr-budget" placeholder="50" min="1"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Page ID</label>
+              <input class="fi" id="cr-page" placeholder="1946314528986549"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Advantage+ Audience</label>
+              <select class="fi text-font" id="cr-adv">
+                <option value="1">Sim (ADV+)</option>
+                <option value="0">Não (manual)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Idade mínima</label>
+              <input class="fi" type="number" id="cr-agemin" value="25" min="18" max="65"/>
+            </div>
+            <div class="fg">
+              <label class="fl">City keys (vírgula) — vazio = Brasil</label>
+              <input class="fi text-font" id="cr-cities" placeholder="609008"/>
+              <div class="fh">Presidente Prudente = 609008</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,176,32,.07);border:1px solid rgba(255,176,32,.2);border-radius:9px;padding:10px 14px;font-size:11px;color:var(--amber);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+          <i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>
+          Campanha e ad set serão criados em status <strong>PAUSED</strong>. Ative manualmente após revisar.
+        </div>
+
+        <button class="lbtn" id="cr-btn" onclick="criarCampanha()" style="width:100%">
+          <i class="ti ti-rocket"></i><span id="cr-btxt">Criar campanha + ad set</span>
+        </button>
+
+        <div id="cr-log" style="display:none;margin-top:12px;background:var(--bg-2);border:1px solid var(--border);border-radius:9px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.8;max-height:220px;overflow-y:auto"></div>
+        <div id="cr-result" style="display:none;margin-top:12px;background:rgba(0,255,156,.05);border:1px solid rgba(0,255,156,.2);border-radius:12px;padding:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--green-2);display:flex;align-items:center;gap:6px;margin-bottom:12px"><i class="ti ti-circle-check"></i> Criado com sucesso</div>
+          <div id="cr-result-rows"></div>
+          <a id="cr-link" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:5px;color:var(--cyan);font-size:11px;text-decoration:none;margin-top:10px"><i class="ti ti-external-link" style="font-size:11px"></i> Abrir no Ads Manager</a>
+        </div>
+      </div>
+
+      <!-- PAINEL: AD SET EM CAMPANHA EXISTENTE -->
+      <div id="cpanel-adset" style="display:none">
+        <div class="card" style="margin-bottom:12px">
+          <div class="ct"><i class="ti ti-layers-subtract"></i> Ad Set em campanha existente</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Conta de anúncio (act_id)</label>
+              <input class="fi text-font" id="ea-account" placeholder="167922944923039"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Campaign ID existente</label>
+              <input class="fi text-font" id="ea-campaign" placeholder="120249251684960684"/>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">Nome do ad set</label>
+            <input class="fi text-font" id="ea-asname" placeholder="[ADV+] | [25+] | [Presidente Prudente] | [FEED/REELS]"/>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Objetivo de otimização</label>
+              <select class="fi text-font" id="ea-goal">
+                <option value="PROFILE_AND_PAGE_ENGAGEMENT">Engajamento de perfil/página</option>
+                <option value="LINK_CLICKS">Cliques no link</option>
+                <option value="REACH">Alcance</option>
+                <option value="IMPRESSIONS">Impressões</option>
+                <option value="OFFSITE_CONVERSIONS">Conversões</option>
+                <option value="LEAD_GENERATION">Geração de leads</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="fl">Destination type</label>
+              <select class="fi text-font" id="ea-dest">
+                <option value="INSTAGRAM_PROFILE_AND_FACEBOOK_PAGE">Instagram + Facebook</option>
+                <option value="INSTAGRAM_PROFILE">Instagram</option>
+                <option value="FACEBOOK_PAGE">Facebook</option>
+                <option value="">— Nenhum —</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Orçamento diário (R$)</label>
+              <input class="fi" type="number" id="ea-budget" placeholder="50" min="1"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Page ID</label>
+              <input class="fi" id="ea-page" placeholder="1946314528986549"/>
+            </div>
+            <div class="fg">
+              <label class="fl">Advantage+ Audience</label>
+              <select class="fi text-font" id="ea-adv">
+                <option value="1">Sim (ADV+)</option>
+                <option value="0">Não</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg">
+              <label class="fl">Idade mínima</label>
+              <input class="fi" type="number" id="ea-agemin" value="25" min="18"/>
+            </div>
+            <div class="fg">
+              <label class="fl">City keys (vírgula) — vazio = Brasil</label>
+              <input class="fi text-font" id="ea-cities" placeholder="609008"/>
+            </div>
+          </div>
+        </div>
+
+        <button class="lbtn" id="ea-btn" onclick="criarAdSetExistente()" style="width:100%">
+          <i class="ti ti-rocket"></i><span id="ea-btxt">Criar ad set</span>
+        </button>
+
+        <div id="ea-log" style="display:none;margin-top:12px;background:var(--bg-2);border:1px solid var(--border);border-radius:9px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.8;max-height:220px;overflow-y:auto"></div>
+        <div id="ea-result" style="display:none;margin-top:12px;background:rgba(0,255,156,.05);border:1px solid rgba(0,255,156,.2);border-radius:12px;padding:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--green-2);display:flex;align-items:center;gap:6px;margin-bottom:12px"><i class="ti ti-circle-check"></i> Ad set criado com sucesso</div>
+          <div id="ea-result-rows"></div>
+          <a id="ea-link" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:5px;color:var(--cyan);font-size:11px;text-decoration:none;margin-top:10px"><i class="ti ti-external-link" style="font-size:11px"></i> Abrir no Ads Manager</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI PANEL -->
+  <div class="aip" id="aip">
+    <div class="aih"><div class="aiht"><i class="ti ti-sparkles"></i> Análise por IA</div><button class="aic" onclick="closeAI()"><i class="ti ti-x"></i></button></div>
+    <div class="aim" id="aim">
+      <div class="aimsg assistant"><div class="aimr">Claude</div><div class="aib">Olá! Conecte suas contas e clique em <strong>Analisar com IA</strong> para eu avaliar suas métricas e sugerir otimizações com base nos dados reais.</div></div>
+    </div>
+    <div class="ait" id="ait"><div class="dots"><span></span><span></span><span></span></div></div>
+    <div class="aiq">
+      <button class="aiqb" onclick="quickAsk('Quais campanhas devo pausar agora?')">Pausar agora?</button>
+      <button class="aiqb" onclick="quickAsk('Onde está o maior desperdício de budget?')">Desperdício</button>
+      <button class="aiqb" onclick="quickAsk('Qual conta tem melhor custo por conversa?')">Melhor custo</button>
+      <button class="aiqb" onclick="quickAsk('Resumo geral em 3 pontos')">Resumo</button>
+    </div>
+    <div class="aiir">
+      <textarea class="aita" id="aiinp" placeholder="Pergunte sobre suas campanhas…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI()}"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button class="aisb" id="aisb" onclick="sendAI()"><i class="ti ti-send"></i></button>
+    </div>
+  </div>
+
+  <!-- MODAL ORÇAMENTO -->
+  <div class="mo" id="bmod">
+    <div class="md">
+      <div class="mdt"><i class="ti ti-coin"></i> Editar orçamento diário</div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:12px" id="mname">—</div>
+      <label class="fl">Novo orçamento diário (R$)</label>
+      <input type="number" class="mdi" id="mbv" placeholder="Ex: 150" min="1" step="1"/>
+      <div class="mdh">O valor será aplicado imediatamente via API da Meta.</div>
+      <div class="mda">
+        <button class="btn" style="flex:1" onclick="closeBM()">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveBudget()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── ESTADO ───────────────────────────────────────────
+let TOKEN='', BM_IDS=[];
+let D={user:null,bms:[],accounts:[],campaigns:[],waba:[],daily:{}};
+let CH={}, TIMER_ID=null, COUNTDOWN=300, THEME='dark';
+let editId=null, aiHistory=[], aiLoading=false;
+const COLORS=['#00C8FF','#0066FF','#00FF9C','#FFB020','#FF4D4D','#A78BFA'];
+const RULES=[
+  {id:'cpm',on:true,label:'CPM acima de R$25',    test:a=>(a.ins?.cpm||0)>25,                          msg:a=>`CPM de ${fmtR(a.ins.cpm)} na conta "${a.name}"`},
+  {id:'ctr',on:true,label:'CTR abaixo de 1,5%',   test:a=>(a.ins?.ctr||0)>0&&(a.ins?.ctr||0)<1.5,      msg:a=>`CTR de ${fmtN(a.ins.ctr)}% na conta "${a.name}"`},
+  {id:'zero',on:true,label:'Conta ativa sem gasto',test:a=>a.account_status===1&&(a.ins?.spend||0)===0, msg:a=>`Conta "${a.name}" ativa sem gasto no período`},
+];
+
+// ── UTILS ────────────────────────────────────────────
+const fmtR=v=>'R$'+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=v=>parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtI=v=>parseInt(v||0).toLocaleString('pt-BR');
+const cpmC=v=>v>25?'var(--red)':v>18?'var(--amber)':'var(--green-2)';
+const ctrC=v=>v>2?'var(--green-2)':v>0&&v<1.5?'var(--red)':'var(--text)';
+
+function badge(s){
+  const m={ACTIVE:'active',PAUSED:'paused',ARCHIVED:'archived',DELETED:'archived',DISABLED:'disabled'};
+  const l={ACTIVE:'Ativa',PAUSED:'Pausada',ARCHIVED:'Arquivada',DELETED:'Excluída',DISABLED:'Desativada'};
+  return`<span class="badge badge-${m[s]||'archived'}">${l[s]||s}</span>`;
+}
+function toast(m,err=false){
+  const el=document.getElementById('toast');
+  el.textContent=m;el.style.borderColor=err?'rgba(255,77,77,.3)':'var(--border)';
+  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);
+}
+function sync(s,l){
+  document.getElementById('pulse').className='pulse'+(s==='loading'?' loading':s==='error'?' error':'');
+  document.getElementById('sl').textContent=l;
+}
+function dp(){
+  const d=parseInt(document.getElementById('dr')?.value||'30');
+  const n=new Date(),s=new Date();s.setDate(s.getDate()-d);
+  const f=x=>x.toISOString().slice(0,10);
+  return`time_range={"since":"${f(s)}","until":"${f(n)}"}`;
+}
+function erow(c,m,i){return`<tr><td colspan="${c}"><div class="empty"><i class="ti ${i}"></i><div class="empty-t">${m}</div></div></td></tr>`;}
+function toggleTheme(){
+  THEME=THEME==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',THEME);
+  const ic=THEME==='dark'?'ti-sun':'ti-moon';
+  document.querySelectorAll('[id^="ti"]').forEach(el=>{el.className='ti '+ic;});
+  if(D.accounts.length>0)drawCharts();
+}
+
+// ── API META ─────────────────────────────────────────
+async function apiFetch(path,extra=''){
+  let url=`https://graph.facebook.com/v21.0/${path}?access_token=${TOKEN}`;
+  if(extra)url+='&'+extra;
+  const r=await fetch(url);
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const j=await r.json();
+  if(j.error)throw new Error(`[Meta] ${j.error.message}`);
+  return j;
+}
+async function apiAll(path,extra=''){
+  const all=[];let j=await apiFetch(path,extra);all.push(...(j.data||[]));
+  while(j.paging?.next){const r=await fetch(j.paging.next);if(!r.ok)break;j=await r.json();if(j.error)break;all.push(...(j.data||[]));}
+  return all;
+}
+async function fetchIns(id){
+  try{
+    const j=await apiFetch(`${id}/insights`,`fields=spend,impressions,clicks,cpm,ctr,actions&${dp()}`);
+    const row=j.data?.[0]||{};
+    const conv=(row.actions||[]).find(a=>a.action_type==='onsite_conversion.messaging_conversation_started_7d'||a.action_type==='onsite_conversion.lead_grouped'||a.action_type==='onsite_conversion.total_messaging_connection');
+    return{spend:parseFloat(row.spend||0),impressions:parseInt(row.impressions||0),clicks:parseInt(row.clicks||0),cpm:parseFloat(row.cpm||0),ctr:parseFloat(row.ctr||0),conversations:parseInt(conv?.value||0)};
+  }catch{return{spend:0,impressions:0,clicks:0,cpm:0,ctr:0,conversations:0};}
+}
+
+// ── DIAGNÓSTICO ──────────────────────────────────────
+async function doDiag(){
+  const t=document.getElementById('ti').value.trim(),b=document.getElementById('bi').value.trim();
+  if(!t){showErr('Cole o token primeiro.');return;}
+  const out=document.getElementById('diag-out');
+  out.style.display='block';out.textContent='Iniciando...\n';
+  const log=m=>{out.textContent+=m+'\n';out.scrollTop=out.scrollHeight;};
+  const get=async u=>{try{const r=await fetch(u);const j=await r.json();return{s:r.status,d:j};}catch(e){return{s:0,d:{error:e.message}};}};
+  log('── me');const me=await get(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${t}`);log(`${me.s}: ${JSON.stringify(me.d)}`);
+  log('── me/adaccounts');const aa=await get(`https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_status&access_token=${t}`);log(`${aa.s}: ${JSON.stringify(aa.d)}`);
+  if(b){for(const id of b.split(',').map(s=>s.trim()).filter(Boolean)){
+    log(`── BM ${id}`);
+    const o=await get(`https://graph.facebook.com/v21.0/${id}/owned_ad_accounts?fields=id,name&access_token=${t}`);log(`owned: ${o.s}: ${JSON.stringify(o.d)}`);
+    const c=await get(`https://graph.facebook.com/v21.0/${id}/client_ad_accounts?fields=id,name&access_token=${t}`);log(`client: ${c.s}: ${JSON.stringify(c.d)}`);
+  }}
+  log('── Concluído');
+}
+
+// ── LOGIN ────────────────────────────────────────────
+async function doLogin(){
+  const raw=document.getElementById('ti').value.trim();
+  const bmr=document.getElementById('bi').value.trim();
+  if(!raw||raw.length<20){showErr('Cole um token de acesso válido.');return;}
+  if(!bmr){showErr('Cole pelo menos um ID de Business Manager.');return;}
+  BM_IDS=bmr.split(',').map(s=>s.trim()).filter(Boolean);
+  TOKEN=raw;
+  const btn=document.getElementById('lbtn');btn.disabled=true;
+  document.getElementById('lbtxt').textContent='Conectando…';
+  document.getElementById('lerr').style.display='none';
+  try{
+    const me=await apiFetch('me','fields=id,name');
+    D.user=me;document.getElementById('su').textContent=me.name||'System User';
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    await reloadData();startTimer();
+  }catch(e){
+    TOKEN='';showErr('Token inválido ou sem permissão.\n'+e.message);
+    btn.disabled=false;document.getElementById('lbtxt').textContent='Conectar';
+  }
+}
+function showErr(m){const el=document.getElementById('lerr');el.textContent=m;el.style.display='block';}
+function doLogout(){
+  TOKEN='';BM_IDS=[];D={user:null,bms:[],accounts:[],campaigns:[],waba:[],daily:{}};
+  clearInterval(TIMER_ID);TIMER_ID=null;COUNTDOWN=300;
+  Object.values(CH).forEach(c=>{try{c.destroy()}catch{}});CH={};
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('ti').value='';
+  document.getElementById('lbtn').disabled=false;
+  document.getElementById('lbtxt').textContent='Conectar';
+  closeAI();
+}
+
+// ── DADOS ────────────────────────────────────────────
+async function reloadData(){
+  sync('loading','Carregando…');
+  document.getElementById('os').textContent='Buscando dados na API da Meta…';
+  try{
+    D.bms=[];
+    for(const id of BM_IDS){try{const b=await apiFetch(id,'fields=id,name');D.bms.push(b);}catch(e){console.warn('Erro BM',id,e.message);}}
+    D.accounts=[];
+    const addA=async(accs,bm)=>{for(const a of accs){if(!D.accounts.find(x=>x.id===a.id)){let ins={spend:0,impressions:0,clicks:0,cpm:0,ctr:0,conversations:0};try{ins=await fetchIns(a.id);}catch{}D.accounts.push({...a,bm_id:bm.id,bm_name:bm.name,ins});}}};
+    for(const bm of D.bms){
+      try{await addA(await apiAll(bm.id+'/owned_ad_accounts','fields=id,name,account_status,currency'),bm);}catch(e){console.warn('owned',bm.name,e.message);}
+      try{await addA(await apiAll(bm.id+'/client_ad_accounts','fields=id,name,account_status,currency'),bm);}catch(e){console.warn('client',bm.name,e.message);}
+    }
+    try{const direct=await apiAll('me/adaccounts','fields=id,name,account_status,currency');for(const a of direct){if(!D.accounts.find(x=>x.id===a.id)){let ins={spend:0,impressions:0,clicks:0,cpm:0,ctr:0,conversations:0};try{ins=await fetchIns(a.id);}catch{}D.accounts.push({...a,bm_id:null,bm_name:'Direto',ins});}}}catch{}
+    D.campaigns=[];
+    for(const acc of D.accounts){
+      try{
+        const camps=await apiAll(acc.id+'/campaigns','fields=id,name,status,objective,daily_budget,lifetime_budget');
+        for(const c of camps){
+          let ins={spend:0,impressions:0,clicks:0,cpm:0,ctr:0,conversations:0};try{ins=await fetchIns(c.id);}catch{}
+          let sd=[];try{const r=await apiFetch(c.id+'/insights',`fields=spend&${dp()}&time_increment=1`);sd=(r.data||[]).map(x=>parseFloat(x.spend||0));}catch{}
+          D.campaigns.push({...c,acc_id:acc.id,acc_name:acc.name,bm_id:acc.bm_id,bm_name:acc.bm_name,ins,sd});
+        }
+      }catch(e){console.warn('camps',acc.name,e.message);}
+    }
+    D.waba=[];
+    for(const bm of D.bms){try{const ws=await apiAll(bm.id+'/owned_whatsapp_business_accounts','fields=id,name');for(const w of ws){try{const ps=await apiAll(w.id+'/phone_numbers','fields=display_phone_number,verified_name,quality_rating,status');D.waba.push(...ps.map(p=>({...p,bm_id:bm.id,bm_name:bm.name})));}catch{}}}catch{}}
+    D.daily={};
+    for(const acc of D.accounts.filter(a=>a.ins?.spend>0).slice(0,5)){try{const j=await apiFetch(acc.id+'/insights',`fields=spend&${dp()}&time_increment=1`);(j.data||[]).forEach(r=>{D.daily[r.date_start]=(D.daily[r.date_start]||0)+parseFloat(r.spend||0);});}catch{}}
+    const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    sync('ok',`Atualizado ${now}`);
+    document.getElementById('os').textContent=`${D.bms.length} BMs · ${D.accounts.length} contas · ${D.campaigns.length} campanhas · ${now}`;
+  }catch(e){sync('error','Erro: '+e.message);toast('Erro: '+e.message,true);}
+  renderAll();populateFilters();
+}
+
+// ── RENDER ───────────────────────────────────────────
+function renderAll(){renderOverview();renderBM();renderWA();renderAcc();renderCamp();renderAlerts();}
+
+function renderOverview(){
+  const tS=D.accounts.reduce((s,a)=>s+(a.ins?.spend||0),0);
+  const tC=D.campaigns.reduce((s,c)=>s+(c.ins?.conversations||0),0);
+  const tI=D.accounts.reduce((s,a)=>s+(a.ins?.impressions||0),0);
+  const tK=D.accounts.reduce((s,a)=>s+(a.ins?.clicks||0),0);
+  const wCPM=D.accounts.filter(a=>(a.ins?.cpm||0)>0);
+  const aCPM=wCPM.length?wCPM.reduce((s,a)=>s+a.ins.cpm,0)/wCPM.length:0;
+  const wCTR=D.accounts.filter(a=>(a.ins?.ctr||0)>0);
+  const aCTR=wCTR.length?wCTR.reduce((s,a)=>s+a.ins.ctr,0)/wCTR.length:0;
+  const aC=D.campaigns.filter(c=>c.status==='ACTIVE').length;
+  const cpC=tC>0?tS/tC:0;
+  document.getElementById('om').innerHTML=`
+    <div class="mc"><div class="me">Gasto total</div><div class="mv" style="color:var(--cyan)">${fmtR(tS)}</div><div class="ms">${fmtI(tI)} impressões</div></div>
+    <div class="mc"><div class="me">Conversas</div><div class="mv">${fmtI(tC)}</div><div class="ms">${fmtI(tK)} cliques</div></div>
+    <div class="mc"><div class="me">CPM médio</div><div class="mv" style="color:${cpmC(aCPM)}">${aCPM>0?fmtR(aCPM):'—'}</div><span class="mbadge ${aCPM>25?'mb-bad':aCPM>18?'mb-warn':'mb-ok'}">${aCPM>25?'Alto':aCPM>0?'Normal':'—'}</span></div>
+    <div class="mc"><div class="me">CTR médio</div><div class="mv" style="color:${ctrC(aCTR)}">${aCTR>0?fmtN(aCTR)+'%':'—'}</div><span class="mbadge ${aCTR>2?'mb-ok':aCTR>0&&aCTR<1.5?'mb-bad':'mb-warn'}">${aCTR>2?'Bom':aCTR>0?'Regular':'—'}</span></div>
+    <div class="mc"><div class="me">Custo/conversa</div><div class="mv">${cpC>0?fmtR(cpC):'—'}</div><div class="ms">por conversa iniciada</div></div>
+    <div class="mc"><div class="me">Campanhas ativas</div><div class="mv" style="color:var(--green)">${aC}</div><div class="ms">de ${D.campaigns.length} total</div></div>`;
+  drawCharts();
+}
+
+function drawCharts(){
+  const dk=THEME==='dark';
+  const gc=dk?'rgba(0,200,255,.05)':'rgba(0,102,204,.07)';
+  const tc=dk?'#3D6080':'#8AAAC4';
+  const days=Object.keys(D.daily).sort();
+  if(CH.s)CH.s.destroy();
+  CH.s=new Chart(document.getElementById('cS'),{type:'line',data:{labels:days.map(d=>d.slice(5)),datasets:[{data:days.map(d=>D.daily[d]),borderColor:'#00C8FF',backgroundColor:'rgba(0,200,255,0.06)',tension:.4,pointRadius:0,borderWidth:2,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:8,color:tc,font:{size:10}},grid:{display:false}},y:{ticks:{color:tc,callback:v=>'R$'+v.toLocaleString('pt-BR'),font:{size:10}},grid:{color:gc}}}}});
+  const top=D.accounts.filter(a=>(a.ins?.spend||0)>0).sort((a,b)=>b.ins.spend-a.ins.spend).slice(0,6);
+  if(CH.p)CH.p.destroy();
+  if(top.length){CH.p=new Chart(document.getElementById('cP'),{type:'doughnut',data:{labels:top.map(a=>a.name),datasets:[{data:top.map(a=>a.ins.spend),backgroundColor:COLORS,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}});document.getElementById('pl').innerHTML=top.map((a,i)=>`<span><span class="ld" style="background:${COLORS[i]}"></span>${a.name.slice(0,14)}</span>`).join('');}
+  const byCPM=D.accounts.filter(a=>(a.ins?.cpm||0)>0).sort((a,b)=>b.ins.cpm-a.ins.cpm).slice(0,7);
+  if(CH.c)CH.c.destroy();
+  if(byCPM.length){CH.c=new Chart(document.getElementById('cC'),{type:'bar',data:{labels:byCPM.map(a=>a.name.slice(0,13)),datasets:[{data:byCPM.map(a=>a.ins.cpm),backgroundColor:byCPM.map(a=>a.ins.cpm>25?'#FF4D4D':a.ins.cpm>18?'#FFB020':'#00C8FF'),borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxRotation:35,font:{size:10},color:tc},grid:{display:false}},y:{ticks:{color:tc,callback:v=>'R$'+v,font:{size:10}},grid:{color:gc}}}}});}
+  const sc={ACTIVE:0,PAUSED:0,OTHER:0};D.campaigns.forEach(c=>c.status==='ACTIVE'?sc.ACTIVE++:c.status==='PAUSED'?sc.PAUSED++:sc.OTHER++);
+  if(CH.st)CH.st.destroy();
+  CH.st=new Chart(document.getElementById('cSt'),{type:'doughnut',data:{labels:['Ativas','Pausadas','Outras'],datasets:[{data:[sc.ACTIVE,sc.PAUSED,sc.OTHER],backgroundColor:['#00FF9C','#FFB020','#3D6080'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}});
+  document.getElementById('stl').innerHTML=[['Ativas',sc.ACTIVE,'#00FF9C'],['Pausadas',sc.PAUSED,'#FFB020'],['Outras',sc.OTHER,'#3D6080']].map(([l,n,c])=>`<span><span class="ld" style="background:${c}"></span>${l} (${n})</span>`).join('');
+  document.getElementById('watl').innerHTML=D.waba.length===0?'<span>Nenhum número</span>':D.waba.slice(0,4).map(w=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:500;color:var(--text)">${w.verified_name||w.display_phone_number}</span><span style="color:var(--text-3)">${w.display_phone_number}</span></div><div style="background:var(--bg-2);border-radius:3px;height:3px;overflow:hidden"><div style="width:100%;height:100%;background:var(--green-2)"></div></div></div>`).join('');
+}
+
+function renderCamp(){
+  const q=(document.getElementById('cq')?.value||'').toLowerCase();
+  const sf=document.getElementById('cst')?.value||'';
+  const bf=document.getElementById('cbm')?.value||'';
+  const af=document.getElementById('cac')?.value||'';
+  const rows=D.campaigns.filter(c=>c.name.toLowerCase().includes(q)&&(!sf||c.status===sf)&&(!bf||c.bm_id===bf)&&(!af||c.acc_id===af));
+  document.getElementById('cc').textContent=`${rows.length} campanhas`;
+  document.getElementById('cs').textContent=`${D.campaigns.filter(c=>c.status==='ACTIVE').length} ativas · ${D.campaigns.length} total`;
+  const grid=document.getElementById('cgrid');
+  if(!rows.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><i class="ti ti-speakerphone"></i><div class="empty-t">Nenhuma campanha</div></div>`;return;}
+  grid.innerHTML=rows.map(c=>{
+    const ins=c.ins||{};
+    const sc=c.status==='ACTIVE'?'ac':c.status==='PAUSED'?'pc':'';
+    const spc=c.status==='ACTIVE'?'sp-a':c.status==='PAUSED'?'sp-p':'sp-x';
+    const spl=c.status==='ACTIVE'?'Ativa':c.status==='PAUSED'?'Pausada':'Arquivada';
+    const bud=parseInt(c.daily_budget||0)/100;
+    const buds=bud>0?fmtR(bud)+'/dia':'—';
+    const pa=c.status==='ACTIVE'
+      ?`<button class="cab pause" onclick="toggleC('${c.id}','PAUSED',event)"><i class="ti ti-player-pause"></i> Pausar</button>`
+      :c.status==='PAUSED'
+      ?`<button class="cab activate" onclick="toggleC('${c.id}','ACTIVE',event)"><i class="ti ti-player-play"></i> Ativar</button>`
+      :`<button class="cab" disabled style="opacity:.3"><i class="ti ti-archive"></i> Arquivada</button>`;
+    const cname=c.name.replace(/'/g,"\\'").replace(/"/g,'\\"');
+    return`<div class="cc ${sc}">
+      <div class="cch"><div><div class="ccn">${c.name}</div><div class="cca">${c.acc_name} · ${c.bm_name||'—'}</div></div><div class="spl ${spc}"><span class="sdot"></span>${spl}</div></div>
+      <div class="chart-area"><canvas id="sp-${c.id}"></canvas></div>
+      <div class="cm">
+        <div class="cmi"><div class="cmil">Gasto</div><div class="cmiv" style="color:var(--cyan);font-size:12px">${fmtR(ins.spend||0)}</div></div>
+        <div class="cmi"><div class="cmil">CPM</div><div class="cmiv" style="color:${cpmC(ins.cpm||0)};font-size:12px">${(ins.cpm||0)>0?fmtR(ins.cpm):'—'}</div></div>
+        <div class="cmi"><div class="cmil">CTR</div><div class="cmiv" style="color:${ctrC(ins.ctr||0)};font-size:12px">${(ins.ctr||0)>0?fmtN(ins.ctr)+'%':'—'}</div></div>
+      </div>
+      <div class="ca">
+        ${pa}
+        <button class="cab" onclick="openBM('${c.id}','${cname}',${bud},event)"><i class="ti ti-coin"></i> ${buds}</button>
+        <button class="cab" onclick="quickAsk('Analise a campanha \\"${cname}\\" com gasto ${fmtR(ins.spend||0)}, CPM ${(ins.cpm||0)>0?fmtR(ins.cpm):'sem dados'}, CTR ${(ins.ctr||0)>0?fmtN(ins.ctr)+'%':'sem dados'}. O que devo fazer?');openAI()"><i class="ti ti-sparkles"></i> IA</button>
+      </div>
+    </div>`;
+  }).join('');
+  rows.forEach(c=>{
+    const el=document.getElementById(`sp-${c.id}`);if(!el)return;
+    const data=c.sd&&c.sd.length?c.sd:[0];
+    const ex=Chart.getChart(el);if(ex)ex.destroy();
+    const col=c.status==='ACTIVE'?'#00C8FF':'#FFB020';
+    new Chart(el,{type:'line',data:{labels:data.map((_,i)=>i),datasets:[{data,borderColor:col,backgroundColor:col+'18',tension:.4,pointRadius:0,borderWidth:1.5,fill:true}]},options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},animation:{duration:500}}});
+  });
+}
+
+function renderBM(){
+  const q=(document.getElementById('bq')?.value||'').toLowerCase();
+  const m={};
+  D.accounts.forEach(a=>{const k=a.bm_id||'__p';if(!m[k])m[k]={n:0,ac:0,spend:0,imp:0,cs:0,cn:0};m[k].n++;m[k].spend+=(a.ins?.spend||0);m[k].imp+=(a.ins?.impressions||0);if((a.ins?.cpm||0)>0){m[k].cs+=a.ins.cpm;m[k].cn++;}});
+  D.campaigns.forEach(c=>{if(c.status==='ACTIVE'){const k=c.bm_id||'__p';if(m[k])m[k].ac++;}});
+  const rows=D.bms.filter(b=>b.name.toLowerCase().includes(q)||b.id.includes(q));
+  document.getElementById('bmc').textContent=`${rows.length} BMs`;
+  document.getElementById('bms').textContent=`${D.bms.length} Business Managers`;
+  document.getElementById('bmt').innerHTML=rows.length===0?erow(7,'Nenhum BM','ti-building'):rows.map(b=>{const x=m[b.id]||{};const a=x.cn>0?x.cs/x.cn:0;return`<tr><td><strong>${b.name}</strong></td><td class="tm">${b.id}</td><td>${x.n||0}</td><td><span style="background:var(--accent-bg);color:var(--cyan);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600">${x.ac||0} ativas</span></td><td class="tm">${fmtR(x.spend||0)}</td><td>${fmtI(x.imp||0)}</td><td style="font-weight:600;color:${cpmC(a)};font-family:'JetBrains Mono',monospace">${a>0?fmtR(a):'—'}</td></tr>`;}).join('');
+}
+function renderWA(){
+  const q=(document.getElementById('wq')?.value||'').toLowerCase();
+  const bf=document.getElementById('wbm')?.value||'';
+  const rows=D.waba.filter(w=>((w.display_phone_number||'').toLowerCase().includes(q)||(w.verified_name||'').toLowerCase().includes(q))&&(!bf||w.bm_id===bf));
+  document.getElementById('wac').textContent=`${rows.length} números`;
+  document.getElementById('was').textContent=`${D.waba.length} números WhatsApp`;
+  const qc={GREEN:'var(--green-2)',YELLOW:'var(--amber)',RED:'var(--red)'};
+  document.getElementById('wat').innerHTML=rows.length===0?erow(5,D.waba.length===0?'Nenhum número — verifique whatsapp_business_management':'Sem resultados','ti-brand-whatsapp'):rows.map(w=>`<tr><td><strong>${w.display_phone_number||'—'}</strong></td><td>${w.verified_name||'—'}</td><td style="font-size:11px;color:var(--text-3)">${w.bm_name||'—'}</td><td style="font-weight:600;color:${qc[w.quality_rating]||'var(--text-3)'}">${w.quality_rating||'—'}</td><td>${badge(w.status==='CONNECTED'?'ACTIVE':w.status||'PAUSED')}</td></tr>`).join('');
+}
+function renderAcc(){
+  const q=(document.getElementById('aq')?.value||'').toLowerCase();
+  const bf=document.getElementById('abm')?.value||'';
+  const rows=D.accounts.filter(a=>(a.name.toLowerCase().includes(q)||a.id.includes(q))&&(!bf||a.bm_id===bf));
+  document.getElementById('acc').textContent=`${rows.length} contas`;
+  document.getElementById('accs').textContent=`${D.accounts.length} contas`;
+  document.getElementById('act').innerHTML=rows.length===0?erow(8,'Nenhuma conta','ti-credit-card'):rows.map(a=>`<tr><td><strong>${a.name}</strong><div class="tsub">${a.bm_name||'—'}</div></td><td class="tm">${a.id}</td><td style="font-size:11px;color:var(--text-3)">${a.bm_name||'Pessoal'}</td><td class="tm">${fmtR(a.ins?.spend||0)}</td><td style="font-weight:600;color:${cpmC(a.ins?.cpm||0)};font-family:'JetBrains Mono',monospace">${(a.ins?.cpm||0)>0?fmtR(a.ins.cpm):'—'}</td><td style="font-weight:600;color:${ctrC(a.ins?.ctr||0)}">${(a.ins?.ctr||0)>0?fmtN(a.ins.ctr)+'%':'—'}</td><td>${(a.ins?.conversations||0)>0?fmtI(a.ins.conversations):'—'}</td><td>${badge(a.account_status===1?'ACTIVE':'DISABLED')}</td></tr>`).join('');
+}
+function renderAlerts(){
+  const hits=[];D.accounts.forEach(a=>{RULES.forEach(r=>{if(r.on&&r.test(a))hits.push({level:r.id==='zero'?'warn':'danger',title:r.label,body:r.msg(a)});});});
+  const b=document.getElementById('abadge');b.textContent=hits.length;b.style.display=hits.length?'':'none';
+  document.getElementById('als').textContent=hits.length?`${hits.length} alertas`:'Tudo dentro dos limites';
+  document.getElementById('allist').innerHTML=hits.length===0?`<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i><div class="empty-t">Nenhum alerta</div></div>`:hits.map(h=>`<div class="al ${h.level}"><i class="ti ti-${h.level==='danger'?'alert-circle':'alert-triangle'}"></i><div><div class="alt">${h.title}</div><div class="alb">${h.body}</div></div></div>`).join('');
+  document.getElementById('alrules').innerHTML=RULES.map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border:1px solid var(--border);border-radius:7px;background:var(--surface)"><span>${r.label}</span><input type="checkbox" ${r.on?'checked':''} onchange="toggleRule('${r.id}',this.checked)" style="width:14px;height:14px;cursor:pointer;accent-color:var(--cyan)"></div>`).join('');
+}
+function toggleRule(id,v){const r=RULES.find(x=>x.id===id);if(r){r.on=v;renderAlerts();}}
+
+function populateFilters(){
+  const bmO=D.bms.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  const acO=D.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  ['wbm','abm','cbm'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=`<option value="">Todos os BMs</option>${bmO}`;});
+  const ca=document.getElementById('cac');if(ca)ca.innerHTML=`<option value="">Todas as contas</option>${acO}`;
+}
+
+// ── AÇÕES CAMPANHAS ───────────────────────────────────
+async function toggleC(id,ns,e){
+  e.stopPropagation();
+  toast(ns==='ACTIVE'?'Ativando…':'Pausando…');
+  try{
+    const r=await fetch(`https://graph.facebook.com/v21.0/${id}?access_token=${TOKEN}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`status=${ns}`});
+    const j=await r.json();if(j.error)throw new Error(j.error.message);
+    const c=D.campaigns.find(x=>x.id===id);if(c)c.status=ns;
+    toast(ns==='ACTIVE'?'✓ Campanha ativada!':'✓ Campanha pausada!');renderCamp();
+  }catch(e){toast('Erro: '+e.message,true);}
+}
+function openBM(id,name,bud,e){
+  e.stopPropagation();editId=id;
+  document.getElementById('mname').textContent=name;
+  document.getElementById('mbv').value=bud>0?bud:'';
+  document.getElementById('bmod').classList.add('open');
+}
+function closeBM(){document.getElementById('bmod').classList.remove('open');editId=null;}
+async function saveBudget(){
+  const val=parseFloat(document.getElementById('mbv').value);
+  if(!val||val<=0){toast('Digite um valor válido',true);return;}
+  if(!editId){toast('Nenhuma campanha selecionada',true);return;}
+  toast('Salvando…');
+  try{
+    const r=await fetch(`https://graph.facebook.com/v21.0/${editId}?access_token=${TOKEN}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`daily_budget=${Math.round(val*100)}`});
+    const j=await r.json();if(j.error)throw new Error(j.error.message);
+    const c=D.campaigns.find(x=>x.id===editId);if(c)c.daily_budget=Math.round(val*100);
+    closeBM();toast(`✓ Orçamento: ${fmtR(val)}/dia`);renderCamp();
+  }catch(e){toast('Erro: '+e.message,true);}
+}
+
+// ── NAVEGAÇÃO ─────────────────────────────────────────
+function goTo(id,el){
+  document.querySelectorAll('.nb-btn').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');document.getElementById('sec-'+id).classList.add('active');
+}
+
+// ── TIMER ─────────────────────────────────────────────
+function startTimer(){
+  clearInterval(TIMER_ID);COUNTDOWN=300;
+  TIMER_ID=setInterval(()=>{
+    COUNTDOWN--;document.getElementById('rfill').style.width=(COUNTDOWN/300*100)+'%';
+    if(COUNTDOWN<=0){COUNTDOWN=300;reloadData();}
+  },1000);
+}
+
+// ── IA (via API Anthropic — funciona em artifacts Claude.ai) ──
+function buildSummary(){
+  const tS=D.accounts.reduce((s,a)=>s+(a.ins?.spend||0),0);
+  const tC=D.campaigns.reduce((s,c)=>s+(c.ins?.conversations||0),0);
+  const wCPM=D.accounts.filter(a=>(a.ins?.cpm||0)>0);
+  const aCPM=wCPM.length?wCPM.reduce((s,a)=>s+a.ins.cpm,0)/wCPM.length:0;
+  const wCTR=D.accounts.filter(a=>(a.ins?.ctr||0)>0);
+  const aCTR=wCTR.length?wCTR.reduce((s,a)=>s+a.ins.ctr,0)/wCTR.length:0;
+  const days=parseInt(document.getElementById('dr')?.value||'30');
+  const accsD=D.accounts.map(a=>`  - ${a.name}: gasto ${fmtR(a.ins?.spend||0)}, CPM ${(a.ins?.cpm||0)>0?fmtR(a.ins.cpm):'—'}, CTR ${(a.ins?.ctr||0)>0?fmtN(a.ins.ctr)+'%':'—'}`).join('\n');
+  const campD=D.campaigns.filter(c=>c.status==='ACTIVE').slice(0,15).map(c=>`  - "${c.name}" (${c.acc_name}): gasto ${fmtR(c.ins?.spend||0)}, CPM ${(c.ins?.cpm||0)>0?fmtR(c.ins.cpm):'—'}, CTR ${(c.ins?.ctr||0)>0?fmtN(c.ins.ctr)+'%':'—'}, conversas ${c.ins?.conversations||0}`).join('\n');
+  return`DADOS META (últimos ${days} dias)\nGasto: ${fmtR(tS)} | Conversas: ${fmtI(tC)} | CPM médio: ${aCPM>0?fmtR(aCPM):'—'} | CTR médio: ${aCTR>0?fmtN(aCTR)+'%':'—'}\nBMs: ${D.bms.length} | Contas: ${D.accounts.length} | Campanhas: ${D.campaigns.length}\n\nCONTAS:\n${accsD||'  —'}\n\nCAMPANHAS ATIVAS:\n${campD||'  —'}`;
+}
+function openAI(){document.getElementById('aip').classList.add('open');}
+function closeAI(){document.getElementById('aip').classList.remove('open');}
+function addMsg(role,text){
+  const msgs=document.getElementById('aim');
+  const div=document.createElement('div');
+  div.className=`aimsg ${role}`;
+  div.innerHTML=`<div class="aimr">${role==='user'?'Você':'Claude'}</div><div class="aib">${text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+async function sendAI(prefill){
+  if(aiLoading)return;
+  const inp=document.getElementById('aiinp');
+  const msg=(prefill||inp.value).trim();
+  if(!msg)return;
+  inp.value='';inp.style.height='auto';
+  addMsg('user',msg);openAI();
+  aiHistory.push({role:'user',content:msg});
+  aiLoading=true;
+  document.getElementById('aisb').disabled=true;
+  document.getElementById('ait').style.display='block';
+  document.getElementById('aim').scrollTop=99999;
+  try{
+    const summary=D.accounts.length>0?buildSummary():'Nenhum dado carregado ainda.';
+    const messages=[
+      {role:'user',content:`${summary}\n\n---\n\n${aiHistory[0].content}`},
+      ...aiHistory.slice(1)
+    ];
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:'Você é um especialista em tráfego pago Meta Ads. Analise os dados reais fornecidos e dê recomendações específicas e acionáveis em português brasileiro. Seja direto, mencione nomes de contas e campanhas, valores reais. Use **negrito** para pontos importantes. Responda de forma organizada mas concisa.',
+        messages
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'Erro ao obter resposta.';
+    document.getElementById('ait').style.display='none';
+    addMsg('assistant',reply);
+    aiHistory.push({role:'assistant',content:reply});
+    if(aiHistory.length>20)aiHistory=aiHistory.slice(-20);
+  }catch(e){
+    document.getElementById('ait').style.display='none';
+    addMsg('assistant','Erro ao chamar a IA: '+e.message+'\n\nSe o erro persistir, cole seus dados aqui e peço ao Claude nesta conversa para analisar diretamente.');
+  }finally{
+    aiLoading=false;document.getElementById('aisb').disabled=false;
+  }
+}
+function quickAsk(q){sendAI(q);}
+function analyzeAll(){openAI();sendAI('Analise todas as minhas campanhas e contas. Identifique os principais problemas e dê as 3 ações mais urgentes que devo tomar agora.');}
+function analyzeBMs(){openAI();sendAI('Compare o desempenho entre os meus Business Managers. Qual tem melhor ROI?');}
+function analyzeAccounts(){openAI();sendAI('Analise todas as minhas contas. Quais têm CPM e CTR fora do padrão? Onde devo realocar budget?');}
+function analyzeCampaigns(){openAI();sendAI('Analise minhas campanhas ativas em detalhe. Quais devo pausar, escalar ou ajustar?');}
+function analyzeAlerts(){openAI();sendAI('Explique os alertas ativos e o que devo fazer para resolver cada um agora.');}
+
+document.getElementById('bmod').addEventListener('click',e=>{if(e.target===e.currentTarget)closeBM();});
+document.getElementById('aiinp').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}});
+document.getElementById('ti').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ── CRIAR CAMPANHA ────────────────────────────────────
+function switchCTab(t){
+  document.getElementById('cpanel-new').style.display=t==='new'?'block':'none';
+  document.getElementById('cpanel-adset').style.display=t==='adset'?'block':'none';
+  document.getElementById('ctab-new').className='btn btn-sm'+(t==='new'?' btn-primary':'');
+  document.getElementById('ctab-adset').className='btn btn-sm'+(t==='adset'?' btn-primary':'');
+  if(t==='new'){document.getElementById('ctab-new').style.flex='1';document.getElementById('ctab-new').style.justifyContent='center';}
+  if(t==='adset'){document.getElementById('ctab-adset').style.flex='1';document.getElementById('ctab-adset').style.justifyContent='center';}
+}
+
+async function apiPost(endpoint,body){
+  const p=new URLSearchParams(body);
+  p.append('access_token',TOKEN);
+  const r=await fetch(`https://graph.facebook.com/v21.0/${endpoint}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p.toString()});
+  const j=await r.json();
+  if(j.error)throw new Error(j.error.message||JSON.stringify(j.error));
+  return j;
+}
+
+function buildGeo(citiesEl){
+  const cities=document.getElementById(citiesEl).value.trim();
+  if(cities)return{cities:cities.split(',').map(k=>({key:k.trim()}))};
+  return{countries:['BR']};
+}
+
+function addCrLog(logId,msg,type='info'){
+  const log=document.getElementById(logId);
+  log.style.display='block';
+  const line=document.createElement('div');
+  const colors={ok:'color:var(--green-2)',err:'color:var(--red)',info:'color:var(--text-3)',id:'color:var(--amber)'};
+  line.style.cssText=(colors[type]||colors.info)+';padding:2px 0;border-bottom:1px solid var(--border-2)';
+  line.textContent=msg;
+  log.appendChild(line);log.scrollTop=log.scrollHeight;
+}
+
+async function criarCampanha(){
+  const acc=document.getElementById('cr-account').value.trim();
+  const cName=document.getElementById('cr-name').value.trim();
+  const obj=document.getElementById('cr-objective').value;
+  const special=document.getElementById('cr-special').value;
+  const asName=document.getElementById('cr-asname').value.trim();
+  const goal=document.getElementById('cr-goal').value;
+  const dest=document.getElementById('cr-dest').value;
+  const budget=document.getElementById('cr-budget').value;
+  const page=document.getElementById('cr-page').value.trim();
+  const adv=document.getElementById('cr-adv').value;
+  const ageMin=document.getElementById('cr-agemin').value||'25';
+
+  if(!acc||!cName||!asName||!budget){toast('Preencha conta, nome da campanha, ad set e orçamento.',true);return;}
+
+  const btn=document.getElementById('cr-btn');
+  btn.disabled=true;document.getElementById('cr-btxt').textContent='Criando…';
+  document.getElementById('cr-log').innerHTML='';
+  document.getElementById('cr-result').style.display='none';
+
+  try{
+    addCrLog('cr-log','[1/2] Criando campanha…','info');
+    const camp=await apiPost(`act_${acc}/campaigns`,{name:cName,objective:obj,special_ad_categories:special?JSON.stringify([special]):JSON.stringify([]),status:'PAUSED',buying_type:'AUCTION'});
+    addCrLog('cr-log','✓ Campanha criada: '+camp.id,'id');
+
+    addCrLog('cr-log','[2/2] Criando ad set…','info');
+    const targeting={age_min:parseInt(ageMin),geo_locations:buildGeo('cr-cities')};
+    if(adv==='1')targeting.targeting_automation={advantage_audience:1};
+    const asBody={name:asName,campaign_id:camp.id,optimization_goal:goal,billing_event:'IMPRESSIONS',bid_strategy:'LOWEST_COST_WITHOUT_CAP',status:'PAUSED',daily_budget:Math.round(parseFloat(budget)*100),targeting:JSON.stringify(targeting)};
+    if(dest)asBody.destination_type=dest;
+    if(page)asBody.promoted_object=JSON.stringify({page_id:page});
+    const adset=await apiPost(`act_${acc}/adsets`,asBody);
+    addCrLog('cr-log','✓ Ad set criado: '+adset.id,'id');
+    addCrLog('cr-log','Concluído. Status: PAUSED','ok');
+
+    document.getElementById('cr-result-rows').innerHTML=`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-2);font-size:11px"><span style="color:var(--text-3)">Campaign ID</span><span style="font-family:'JetBrains Mono',monospace;color:var(--amber)">${camp.id}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-2);font-size:11px"><span style="color:var(--text-3)">Ad Set ID</span><span style="font-family:'JetBrains Mono',monospace;color:var(--amber)">${adset.id}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:11px"><span style="color:var(--text-3)">Status</span><span style="color:var(--amber)">PAUSED</span></div>`;
+    document.getElementById('cr-link').href=`https://adsmanager.facebook.com/adsmanager/manage/campaigns/edit?act=${acc}&selected_campaign_ids=${camp.id}`;
+    document.getElementById('cr-result').style.display='block';
+    toast('✓ Campanha e ad set criados!');
+  }catch(e){
+    addCrLog('cr-log','✗ Erro: '+e.message,'err');
+    toast('Erro: '+e.message,true);
+  }
+  btn.disabled=false;document.getElementById('cr-btxt').textContent='Criar campanha + ad set';
+}
+
+async function criarAdSetExistente(){
+  const acc=document.getElementById('ea-account').value.trim();
+  const campId=document.getElementById('ea-campaign').value.trim();
+  const asName=document.getElementById('ea-asname').value.trim();
+  const goal=document.getElementById('ea-goal').value;
+  const dest=document.getElementById('ea-dest').value;
+  const budget=document.getElementById('ea-budget').value;
+  const page=document.getElementById('ea-page').value.trim();
+  const adv=document.getElementById('ea-adv').value;
+  const ageMin=document.getElementById('ea-agemin').value||'25';
+
+  if(!acc||!campId||!asName||!budget){toast('Preencha todos os campos obrigatórios.',true);return;}
+
+  const btn=document.getElementById('ea-btn');
+  btn.disabled=true;document.getElementById('ea-btxt').textContent='Criando…';
+  document.getElementById('ea-log').innerHTML='';
+  document.getElementById('ea-result').style.display='none';
+
+  try{
+    addCrLog('ea-log','Criando ad set…','info');
+    const targeting={age_min:parseInt(ageMin),geo_locations:buildGeo('ea-cities')};
+    if(adv==='1')targeting.targeting_automation={advantage_audience:1};
+    const body={name:asName,campaign_id:campId,optimization_goal:goal,billing_event:'IMPRESSIONS',bid_strategy:'LOWEST_COST_WITHOUT_CAP',status:'PAUSED',daily_budget:Math.round(parseFloat(budget)*100),targeting:JSON.stringify(targeting)};
+    if(dest)body.destination_type=dest;
+    if(page)body.promoted_object=JSON.stringify({page_id:page});
+    const adset=await apiPost(`act_${acc}/adsets`,body);
+    addCrLog('ea-log','✓ Ad set criado: '+adset.id,'id');
+    addCrLog('ea-log','Concluído. Status: PAUSED','ok');
+
+    document.getElementById('ea-result-rows').innerHTML=`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-2);font-size:11px"><span style="color:var(--text-3)">Ad Set ID</span><span style="font-family:'JetBrains Mono',monospace;color:var(--amber)">${adset.id}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-2);font-size:11px"><span style="color:var(--text-3)">Campaign ID</span><span style="font-family:'JetBrains Mono',monospace;color:var(--amber)">${campId}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:11px"><span style="color:var(--text-3)">Status</span><span style="color:var(--amber)">PAUSED</span></div>`;
+    document.getElementById('ea-link').href=`https://adsmanager.facebook.com/adsmanager/manage/campaigns/edit?act=${acc}&selected_campaign_ids=${campId}`;
+    document.getElementById('ea-result').style.display='block';
+    toast('✓ Ad set criado com sucesso!');
+  }catch(e){
+    addCrLog('ea-log','✗ Erro: '+e.message,'err');
+    toast('Erro: '+e.message,true);
+  }
+  btn.disabled=false;document.getElementById('ea-btxt').textContent='Criar ad set';
+}
+</script>
+</body>
+</html>
