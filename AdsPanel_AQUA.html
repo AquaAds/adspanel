@@ -961,7 +961,7 @@ async function doDiag(){
 async function doLogin(){
   const raw=document.getElementById('li').value.trim();
   const bmr=document.getElementById('bi').value.trim();
-  if(!raw||raw.length<20){showErr('Cole um token de acesso válido.');return;}
+  if(!raw){showErr('Cole a API Key do Railway.');return;}
   if(!bmr){showErr('Cole pelo menos um ID de Business Manager.');return;}
   BM_IDS=bmr.split(',').map(s=>s.trim()).filter(Boolean);
   RAILWAY_KEY=raw;
