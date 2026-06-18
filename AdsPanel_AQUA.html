@@ -300,9 +300,9 @@ tbody tr:hover td{background:var(--accent-bg)}
       <div><div class="login-name">Ads<span>Panel</span></div><div class="login-tagline">AQUA · Meta Ads Intelligence</div></div>
     </div>
     <div class="fg">
-      <label class="fl">Token de acesso Meta</label>
-      <input id="ti" class="fi" type="password" placeholder="EAAOUb2RKbYMBO..." autocomplete="off" spellcheck="false"/>
-      <div class="fh">Token de <strong>System User</strong> (não expira) com <code>ads_read</code> · <code>business_management</code>.</div>
+      <label class="fl">API Key do Railway</label>
+      <input id="li" class="fi" type="password" placeholder="aqua2026" autocomplete="off" spellcheck="false"/>
+      <div class="fh">Chave configurada na variável <code>API_KEY</code> do backend Railway.</div>
     </div>
     <div class="fg">
       <label class="fl">IDs dos Business Managers</label>
@@ -315,7 +315,7 @@ tbody tr:hover td{background:var(--accent-bg)}
       <button class="lbtn-diag" onclick="doDiag()"><i class="ti ti-stethoscope"></i> Diagnóstico</button>
     </div>
     <div id="diag-out" class="diag-out"></div>
-    <div class="lsec"><i class="ti ti-lock" style="font-size:11px"></i> Token não é salvo — apenas nesta aba</div>
+    <div class="lsec"><i class="ti ti-lock" style="font-size:11px"></i> Nenhum token armazenado no browser</div>
   </div>
 </div>
 
@@ -840,7 +840,8 @@ tbody tr:hover td{background:var(--accent-bg)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ── ESTADO ───────────────────────────────────────────
-let TOKEN='', BM_IDS=[];
+const RAILWAY_URL='https://aqua-backend-production-cefa.up.railway.app';
+let RAILWAY_KEY='', BM_IDS=[];
 let D={user:null,bms:[],accounts:[],campaigns:[],waba:[],daily:{}};
 let CH={}, TIMER_ID=null, COUNTDOWN=300, THEME='dark';
 let editId=null, aiHistory=[], aiLoading=false;
@@ -887,21 +888,44 @@ function toggleTheme(){
   if(D.accounts.length>0)drawCharts();
 }
 
-// ── API META ─────────────────────────────────────────
-async function apiFetch(path,extra=''){
-  let url=`https://graph.facebook.com/v21.0/${path}?access_token=${TOKEN}`;
-  if(extra)url+='&'+extra;
-  const r=await fetch(url);
+// ── PROXY RAILWAY ─────────────────────────────────────
+// Todas as chamadas à Graph API passam pelo Railway backend.
+// O token Meta fica no servidor — nunca exposto no browser.
+async function apiGet(path,extra=''){
+  const params={};
+  if(extra)new URLSearchParams(extra).forEach((v,k)=>params[k]=v);
+  const qs=new URLSearchParams({path,...params});
+  const r=await fetch(`${RAILWAY_URL}/proxy?${qs}`,{headers:{'x-api-key':RAILWAY_KEY}});
   if(!r.ok)throw new Error(`HTTP ${r.status}`);
   const j=await r.json();
-  if(j.error)throw new Error(`[Meta] ${j.error.message}`);
+  if(j.error)throw new Error(j.error);
   return j;
 }
 async function apiAll(path,extra=''){
-  const all=[];let j=await apiFetch(path,extra);all.push(...(j.data||[]));
-  while(j.paging?.next){const r=await fetch(j.paging.next);if(!r.ok)break;j=await r.json();if(j.error)break;all.push(...(j.data||[]));}
+  const all=[],base={};
+  if(extra)new URLSearchParams(extra).forEach((v,k)=>base[k]=v);
+  let after=null;
+  while(true){
+    const p={...base};if(after)p.after=after;
+    const qs=new URLSearchParams({path,...p});
+    const r=await fetch(`${RAILWAY_URL}/proxy?${qs}`,{headers:{'x-api-key':RAILWAY_KEY}});
+    if(!r.ok)break;
+    const j=await r.json();if(j.error)break;
+    all.push(...(j.data||[]));
+    const next=j.paging?.cursors?.after;
+    if(!next||!j.data?.length)break;
+    after=next;
+  }
   return all;
 }
+async function apiPost(endpoint,body){
+  const r=await fetch(`${RAILWAY_URL}/proxy`,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':RAILWAY_KEY},body:JSON.stringify({path:endpoint,...body})});
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const j=await r.json();
+  if(j.error)throw new Error(j.error.message||JSON.stringify(j.error));
+  return j;
+}
+const apiFetch=apiGet;
 async function fetchIns(id){
   try{
     const j=await apiFetch(`${id}/insights`,`fields=spend,impressions,clicks,cpm,ctr,actions&${dp()}`);
@@ -913,30 +937,34 @@ async function fetchIns(id){
 
 // ── DIAGNÓSTICO ──────────────────────────────────────
 async function doDiag(){
-  const t=document.getElementById('ti').value.trim(),b=document.getElementById('bi').value.trim();
-  if(!t){showErr('Cole o token primeiro.');return;}
+  const t=document.getElementById('li').value.trim(),b=document.getElementById('bi').value.trim();
+  if(!t){showErr('Cole a API Key primeiro.');return;}
   const out=document.getElementById('diag-out');
   out.style.display='block';out.textContent='Iniciando...\n';
   const log=m=>{out.textContent+=m+'\n';out.scrollTop=out.scrollHeight;};
-  const get=async u=>{try{const r=await fetch(u);const j=await r.json();return{s:r.status,d:j};}catch(e){return{s:0,d:{error:e.message}};}};
-  log('── me');const me=await get(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${t}`);log(`${me.s}: ${JSON.stringify(me.d)}`);
-  log('── me/adaccounts');const aa=await get(`https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_status&access_token=${t}`);log(`${aa.s}: ${JSON.stringify(aa.d)}`);
-  if(b){for(const id of b.split(',').map(s=>s.trim()).filter(Boolean)){
-    log(`── BM ${id}`);
-    const o=await get(`https://graph.facebook.com/v21.0/${id}/owned_ad_accounts?fields=id,name&access_token=${t}`);log(`owned: ${o.s}: ${JSON.stringify(o.d)}`);
-    const c=await get(`https://graph.facebook.com/v21.0/${id}/client_ad_accounts?fields=id,name&access_token=${t}`);log(`client: ${c.s}: ${JSON.stringify(c.d)}`);
-  }}
-  log('── Concluído');
+  try{
+    log('── health');
+    const h=await fetch(`${RAILWAY_URL}/health`);
+    const hj=await h.json();log(`${h.status}: ${JSON.stringify(hj)}`);
+    if(!t){log('Cole a API Key para continuar.');return;}
+    log('── me (via proxy)');
+    const r=await fetch(`${RAILWAY_URL}/proxy?path=me&fields=id,name`,{headers:{'x-api-key':t}});
+    const j=await r.json();
+    if(j.error)throw new Error(j.error);
+    log(`${r.status}: ${JSON.stringify(j)}`);
+    log('── Token Meta válido ✓');
+    if(b){for(const id of b.split(',').map(s=>s.trim()).filter(Boolean)){log(`── Testando BM ${id}`);try{const jb=await apiGet(id+'/owned_ad_accounts','fields=id,name&limit=3');log(`owned: ${JSON.stringify(jb.data?.length||0)} contas`);}catch(eb){log(`✗ BM ${id}: ${eb.message}`);}}}
+  }catch(e){log(`✗ Erro: ${e.message}`);}
 }
 
 // ── LOGIN ────────────────────────────────────────────
 async function doLogin(){
-  const raw=document.getElementById('ti').value.trim();
+  const raw=document.getElementById('li').value.trim();
   const bmr=document.getElementById('bi').value.trim();
   if(!raw||raw.length<20){showErr('Cole um token de acesso válido.');return;}
   if(!bmr){showErr('Cole pelo menos um ID de Business Manager.');return;}
   BM_IDS=bmr.split(',').map(s=>s.trim()).filter(Boolean);
-  TOKEN=raw;
+  RAILWAY_KEY=raw;
   const btn=document.getElementById('lbtn');btn.disabled=true;
   document.getElementById('lbtxt').textContent='Conectando…';
   document.getElementById('lerr').style.display='none';
@@ -947,18 +975,18 @@ async function doLogin(){
     document.getElementById('app').style.display='block';
     await reloadData();startTimer();
   }catch(e){
-    TOKEN='';showErr('Token inválido ou sem permissão.\n'+e.message);
+    RAILWAY_KEY='';showErr('Erro ao conectar: '+e.message);
     btn.disabled=false;document.getElementById('lbtxt').textContent='Conectar';
   }
 }
 function showErr(m){const el=document.getElementById('lerr');el.textContent=m;el.style.display='block';}
 function doLogout(){
-  TOKEN='';BM_IDS=[];D={user:null,bms:[],accounts:[],campaigns:[],waba:[],daily:{}};
+  RAILWAY_KEY='';BM_IDS=[];D={user:null,bms:[],accounts:[],campaigns:[],waba:[],daily:{}};
   clearInterval(TIMER_ID);TIMER_ID=null;COUNTDOWN=300;
   Object.values(CH).forEach(c=>{try{c.destroy()}catch{}});CH={};
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
-  document.getElementById('ti').value='';
+  document.getElementById('li').value='';
   document.getElementById('lbtn').disabled=false;
   document.getElementById('lbtxt').textContent='Conectar';
   closeAI();
@@ -1140,8 +1168,8 @@ async function toggleC(id,ns,e){
   e.stopPropagation();
   toast(ns==='ACTIVE'?'Ativando…':'Pausando…');
   try{
-    const r=await fetch(`https://graph.facebook.com/v21.0/${id}?access_token=${TOKEN}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`status=${ns}`});
-    const j=await r.json();if(j.error)throw new Error(j.error.message);
+    const r=await fetch(`${RAILWAY_URL}/proxy`,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':RAILWAY_KEY},body:JSON.stringify({path:id,status:ns})});
+    const j=await r.json();if(j.error)throw new Error(j.error.message||j.error);
     const c=D.campaigns.find(x=>x.id===id);if(c)c.status=ns;
     toast(ns==='ACTIVE'?'✓ Campanha ativada!':'✓ Campanha pausada!');renderCamp();
   }catch(e){toast('Erro: '+e.message,true);}
@@ -1159,8 +1187,8 @@ async function saveBudget(){
   if(!editId){toast('Nenhuma campanha selecionada',true);return;}
   toast('Salvando…');
   try{
-    const r=await fetch(`https://graph.facebook.com/v21.0/${editId}?access_token=${TOKEN}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`daily_budget=${Math.round(val*100)}`});
-    const j=await r.json();if(j.error)throw new Error(j.error.message);
+    const r=await fetch(`${RAILWAY_URL}/proxy`,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':RAILWAY_KEY},body:JSON.stringify({path:editId,daily_budget:String(Math.round(val*100))})});
+    const j=await r.json();if(j.error)throw new Error(j.error.message||j.error);
     const c=D.campaigns.find(x=>x.id===editId);if(c)c.daily_budget=Math.round(val*100);
     closeBM();toast(`✓ Orçamento: ${fmtR(val)}/dia`);renderCamp();
   }catch(e){toast('Erro: '+e.message,true);}
@@ -1283,14 +1311,12 @@ function toggleBfCreative(){
 async function searchCity(){
   const q=document.getElementById('bf-city-search').value.trim();
   if(!q)return;
-  if(!TOKEN){toast('Conecte-se primeiro',true);return;}
+  if(!RAILWAY_KEY){toast('Conecte-se primeiro',true);return;}
   const res=document.getElementById('bf-city-results');
   res.style.display='block';
   res.innerHTML='<div style="padding:10px;font-size:11px;color:var(--text-3)">Buscando…</div>';
   try{
-    const url=`https://graph.facebook.com/v21.0/search?type=adgeolocation&q=${encodeURIComponent(q)}&location_types=["city"]&access_token=${TOKEN}`;
-    const r=await fetch(url);const j=await r.json();
-    if(j.error)throw new Error(j.error.message);
+    const j=await apiGet('search',`type=adgeolocation&q=${encodeURIComponent(q)}&location_types=${encodeURIComponent('["city"]')}`);
     const cities=(j.data||[]).filter(c=>c.country_code==='BR').slice(0,8);
     if(!cities.length){res.innerHTML='<div style="padding:10px;font-size:11px;color:var(--text-3)">Nenhuma cidade encontrada no Brasil</div>';return;}
     res.innerHTML=cities.map(c=>`<div onclick="addCityKey('${c.key}','${c.name.replace(/'/g,"\\'")}')" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border-2);font-size:12px;transition:background .1s" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'"><span style="font-weight:500">${c.name}</span><span style="color:var(--text-3);font-size:10px;margin-left:6px">${c.region||''}</span><span style="float:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--amber)">${c.key}</span></div>`).join('');
@@ -1358,14 +1384,6 @@ function switchCTab(t){
   if(t==='adset'){document.getElementById('ctab-adset').style.flex='1';document.getElementById('ctab-adset').style.justifyContent='center';}
 }
 
-async function apiPost(endpoint,body){
-  const p=new URLSearchParams(body);
-  p.append('access_token',TOKEN);
-  const r=await fetch(`https://graph.facebook.com/v21.0/${endpoint}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p.toString()});
-  const j=await r.json();
-  if(j.error)throw new Error(j.error.message||JSON.stringify(j.error));
-  return j;
-}
 
 function buildGeo(citiesEl){
   const cities=document.getElementById(citiesEl).value.trim();
